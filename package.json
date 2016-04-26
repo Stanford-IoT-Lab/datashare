@@ -1,0 +1,17 @@
+{
+  "name": "datashare",
+  "version": "1.0.0",
+  "description": "A framework for sharing semantic data through messaging",
+  "author": "Stanford Mobisocial lab",
+  "contributors": [
+    {
+      "name": "Giovanni Campagna",
+      "email": "gcampagn@cs.stanford.edu"
+    }
+  ],
+  "main": "lib/index.js",
+  "dependencies": {
+    "q": "~1.4.0",
+    "adt": "~0.7.2"
+  }
+}
