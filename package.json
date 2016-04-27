@@ -11,7 +11,10 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "q": "~1.4.0",
-    "adt": "~0.7.2"
+    "adt": "~0.7.2",
+    "omlib": "https://github.com/Stanford-IoT-Lab/omclient/tarball/new-api",
+    "q": "^1.4.1",
+    "readline": "^1.3.0",
+    "thingpedia": "https://github.com/Stanford-IoT-Lab/thingpedia-api/tarball/master"
   }
 }
