@@ -82,12 +82,18 @@ function main() {
                 else
                     console.log('Unknown command ' + line[1]);
             } else {
-                database.runSelect(line).then(function(cursor) {
-                    for (var value of cursor)
-                        console.log(value);
+                Q.try(function() {
+                    return database.runQuery(line);
+                }).then(function(cursor) {
+                    if (cursor) {
+                        for (var value of cursor)
+                            console.log(value);
+                    }
+                }).catch(function(e) {
+                    console.log('Failed to execute query: ' + e.message);
                 }).then(function() {
                     rl.prompt();
-                });
+                }).done();
             }
         });
         rl.on('SIGINT', quit);

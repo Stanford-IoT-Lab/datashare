@@ -16,6 +16,7 @@ const path = require('path');
 const child_process = require('child_process');
 
 const prefs = require('./prefs');
+const SimpleTripleStore = require('./simpletriplestore');
 
 var Config;
 try {
@@ -26,6 +27,7 @@ Config = {};
 
 var _writabledir = null;
 var _prefs = null;
+var _tripleStore = null;
 
 var _unzipApi = {
     unzip: function(zipPath, dir) {
@@ -51,6 +53,7 @@ module.exports = {
                 throw e;
         }
 
+        _tripleStore = new SimpleTripleStore(_writabledir + '/rdf.db');
         _prefs = new prefs.FilePreferences(_writabledir + '/prefs.db');
     },
 
@@ -68,6 +71,9 @@ module.exports = {
             // this platform
             return true;
 
+        case 'triple-store':
+            return true;
+
         default:
             return false;
         }
@@ -82,6 +88,9 @@ module.exports = {
         case 'code-download':
             // We have the support to download code
             return _unzipApi;
+
+        case 'triple-store':
+            return _tripleStore;
 
         default:
             return null;
