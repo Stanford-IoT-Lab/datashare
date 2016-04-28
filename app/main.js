@@ -36,6 +36,7 @@ function main() {
 
     var platform = require('./platform');
     platform.init();
+
     var client = OmletFactory(platform, true);
     var messaging = new Messaging(client);
     var database = new Database(platform, messaging);
@@ -69,6 +70,27 @@ function main() {
     }).then(function() {
         return database.start();
     }).then(function() {
+        // insert some fake data
+        var prefs = platform.getSharedPreferences();
+        if (prefs.get('initialized'))
+            return;
+
+        prefs.set('initialized', true);
+        var rdfstore = platform.getCapability('triple-store');
+        return rdfstore.put([{
+            subject: 'omlet://me',
+            predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+            object: 'http://xmlns.com/foaf/0.1/Person'
+        }, {
+            subject: 'omlet://me',
+            predicate: 'http://xmlns.com/foaf/0.1/firstName',
+            object: '"John"'
+        }, {
+            subject: 'omlet://me',
+            predicate: 'http://xmlns.com/foaf/0.1/lastName',
+            object: '"Doe"'
+        }]);
+    }).then(function() {
         function quit() {
             console.log('Bye\n');
             rl.close();
@@ -84,13 +106,17 @@ function main() {
             } else {
                 Q.try(function() {
                     return database.runQuery(line);
-                }).then(function(cursor) {
-                    if (cursor) {
-                        for (var value of cursor)
-                            console.log(value);
-                    }
+                }).then(function(stream) {
+                    return Q.Promise(function(callback, errback) {
+                        stream.on('error', errback);
+                        stream.on('data', (data) => {
+                            console.log(data);
+                        });
+                        stream.on('end', callback);
+                    });
                 }).catch(function(e) {
-                    console.log('Failed to execute query: ' + e.message);
+                    console.error('Failed to execute query: ' + e.message);
+                    console.error(e.stack);
                 }).then(function() {
                     rl.prompt();
                 }).done();

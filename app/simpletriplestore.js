@@ -9,9 +9,8 @@
 
 const Q = require('q');
 const fs = require('fs');
-const N3 = require('n3');
-const rdfstore = require('rdfstore');
-const SparqlGenerator = require('sparqljs').Generator;
+const level = require("level-browserify");
+const levelgraph = require("levelgraph");
 
 const TripleStore = require('../lib/triplestore');
 
@@ -19,27 +18,39 @@ module.exports = class SimpleTripleStore extends TripleStore {
     constructor(path) {
         super();
 
+        this.rdf = null;
         this._path = path;
     }
 
+    get uri() {
+        return 'omlet://me';
+    }
+
     start() {
-        console.log('start');
-        return Q.nfcall(rdfstore.create, { persistent: true }).then((store) => {
-            this._store = store;
-            this._rdf = store.rdf;
-            console.log('created');
-        });
+        this._db = levelgraph(level(this._path));
+        return Q();
     }
 
-    insertData(triples) {
-        var graph = this._rdf.createGraph();
-        triples.forEach((t) => graph.add(t));
-        return Q.ninvoke(this._store, 'insert', graph);
+    put(triples) {
+        return Q.ninvoke(this._db, 'put', triples);
     }
 
-    runSelect(query) {
-        var generator = new SparqlGenerator();
-        var queryString = generator.stringify(query);
-        return Q.ninvoke(this._store, 'execute', queryString);
+    get(patterns) {
+        var mapvariable = (v) => {
+            if (v.startsWith('?'))
+                return this._db.v(v);
+            else
+                return v;
+        }
+        patterns = patterns.map((p) => {
+            var obj = {
+                subject: mapvariable(p.subject),
+                predicate: mapvariable(p.predicate),
+                object: mapvariable(p.object)
+            };
+            return obj;
+        })
+        console.log('Search for', patterns);
+        return this._db.searchStream(patterns);
     }
 }
