@@ -103,10 +103,10 @@ function main() {
                     quit();
                 else
                     console.log('Unknown command ' + line[1]);
-            } else {
+            } else if (line.trim()) {
                 Q.try(function() {
-                    return database.runQuery(line);
-                }).then(function(stream) {
+                    var stream = database.runQuery(line);
+
                     return Q.Promise(function(callback, errback) {
                         stream.on('error', errback);
                         stream.on('data', (data) => {
@@ -120,6 +120,8 @@ function main() {
                 }).then(function() {
                     rl.prompt();
                 }).done();
+            } else {
+                rl.prompt();
             }
         });
         rl.on('SIGINT', quit);

@@ -26,9 +26,8 @@ module.exports = class SimpleTripleStore extends TripleStore {
         return 'omlet://me';
     }
 
-    start() {
+    ref() {
         this._db = levelgraph(level(this._path));
-        return Q();
     }
 
     put(triples) {
