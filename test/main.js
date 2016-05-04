@@ -11,11 +11,9 @@ const Q = require('q');
 const readline = require('readline');
 
 const OmletFactory = require('./omlet');
-// GIANT HACK
-const LDProto = require('omclient/lib/ldproto');
 
 const Database = require('../lib/index');
-const Messaging = require('../lib/deps/messaging');
+const Messaging = require('./deps/messaging');
 
 function readOneLine(rl) {
     return Q.Promise(function(callback, errback) {
